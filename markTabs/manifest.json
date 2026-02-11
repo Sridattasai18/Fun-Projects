@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "markTabs",
+  "version": "1.0",
+  "description": "Add notes to your tabs so you remember why you opened them.",
+  "action": {
+    "default_title": "markTabs",
+    "default_popup": "popup.html"
+  },
+  "permissions": [
+    "tabs",
+    "storage"
+  ]
+}
