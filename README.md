@@ -1,4 +1,4 @@
-Fun Projects
+# Fun Projects
 
 A collection of small, interactive, and experimental web projects I build when I’m bored, curious, or just want to try something new.
 
