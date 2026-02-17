@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexConvert | Download Now</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <div class="hero">
+        <header class="header">
+            <div class="brand">NexConvert</div>
+            <a href="/" class="nav-link">Home</a>
+        </header>
+
+        <div class="hero-content">
+            <h1>
+                Paste Link.<br>
+                <span
+                    style="background: var(--secondary-gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">Get
+                    Content.</span>
+            </h1>
+            <p>Paste your YouTube link below and choose your preferred format.</p>
+
+            <form method="post" action="/youtube/api">
+                <input type="text" name="link_input" placeholder="https://youtube.com/watch?v=..." required>
+
+                <select name="file_type">
+                    <option value="mp4">Video (MP4) - High Quality</option>
+                    <option value="mp3">Audio (MP3) - Crystal Clear</option>
+                </select>
+
+                <button type="submit">Convert Now</button>
+            </form>
+
+            <a href="/" style="margin-top: 2rem; opacity: 0.6; font-size: 0.9rem;">&larr; Back to home</a>
+        </div>
+    </div>
+
+</body>
+
+</html>

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexConvert | Error</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <div class="hero">
+        <header class="header">
+            <div class="brand">NexConvert</div>
+            <a href="/" class="nav-link">Home</a>
+        </header>
+
+        <div class="hero-content">
+            <h1 style="color: #fbbf24; background: none; -webkit-text-fill-color: initial;">Oops!</h1>
+            <p>{{ error_message }}</p>
+
+            <a href="/" style="margin-top: 2rem; color: var(--accent); font-weight: 700;">&larr; Back to Home</a>
+        </div>
+    </div>
+
+</body>
+
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexConvert | Your Result</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <div class="hero">
+        <header class="header">
+            <div class="brand">NexConvert</div>
+            <a href="/" class="nav-link">Home</a>
+        </header>
+
+        <div class="hero-content">
+            <h2 style="margin-bottom: 0.5rem;">{{ title }}</h2>
+            <p style="color: var(--text-muted); margin-bottom: 2rem;">{{ author }} &bull; {{ length }} seconds</p>
+
+            <div class="result-card">
+                <img src="{{ thumbnail_url }}" alt="Thumbnail" style="margin-bottom: 2rem;">
+
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    {% if ftype == "mp4" %}
+                    <a href="/download?link={{ link_input | urlencode }}" style="text-decoration: none;">
+                        <button class="animated-button" style="width: 100%; justify-content: center;">
+                            Download MP4
+                        </button>
+                    </a>
+                    {% else %}
+                    <a href="/downloadmp3?link={{ link_input | urlencode }}" style="text-decoration: none;">
+                        <button class="animated-button" style="width: 100%; justify-content: center;">
+                            Download MP3
+                        </button>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <a href="/" style="margin-top: 2rem; opacity: 0.6; font-size: 0.9rem;">&larr; Convert another video</a>
+        </div>
+    </div>
+
+</body>
+
+</html>
