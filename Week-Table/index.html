@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weekly Timetable</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:      #0d0d0d;
+  --card:    #141414;
+  --border:  #222;
+  --border2: #2a2a2a;
+  --dsa:     #f0c040;
+  --mern:    #4fc3f7;
+  --college: #a8d5a2;
+  --rest:    #9e9e9e;
+  --other:   #c084fc;
+  --danger:  #f87171;
+  --text:    #f0f0f0;
+  --dim:     #666;
+  --surface: #1a1a1a;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Space Mono', monospace;
+  min-height: 100vh;
+  padding: 2rem 1rem 4rem;
+}
+
+/* ── HEADER ── */
+.top {
+  max-width: 1100px;
+  margin: 0 auto 0.25rem;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+h1 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  letter-spacing: -1px;
+}
+
+.subtitle {
+  max-width: 1100px;
+  margin: 0 auto 1.8rem;
+  color: var(--dim);
+  font-size: 0.72rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.add-day-btn {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.7rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: 20px;
+  border: 1px solid var(--border2);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: border-color 0.2s, color 0.2s;
+}
+.add-day-btn:hover { border-color: var(--dsa); color: var(--dsa); }
+
+/* ── LEGEND ── */
+.legend {
+  max-width: 1100px;
+  margin: 0 auto 1.8rem;
+  display: flex;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--dim);
+}
+
+.dot {
+  width: 10px; height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* ── GRID ── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* ── DAY CARD ── */
+.day-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  animation: fadeUp 0.25s ease;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.day-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.day-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.day-name {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 1px;
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 1px 3px;
+  transition: background 0.15s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.day-name:hover { background: rgba(255,255,255,0.05); }
+
+.day-name-input {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 1px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid #333;
+  color: var(--text);
+  border-radius: 4px;
+  padding: 1px 6px;
+  outline: none;
+  max-width: 130px;
+}
+
+.day-tag-select {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.6rem;
+  padding: 2px 7px;
+  border-radius: 20px;
+  border: 1px solid #303060;
+  background: #1a1a2e;
+  color: #7986cb;
+  cursor: pointer;
+  outline: none;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.day-tag-select option { background: #1a1a1a; color: var(--text); }
+
+.day-actions { display: flex; gap: 0.35rem; align-items: center; flex-shrink: 0; }
+
+.btn-add-task {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.62rem;
+  padding: 3px 9px;
+  border-radius: 20px;
+  border: 1px solid #1e3a3a;
+  background: rgba(79,195,247,0.07);
+  color: var(--mern);
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: background 0.15s;
+}
+.btn-add-task:hover { background: rgba(79,195,247,0.16); }
+
+.btn-del-day {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.62rem;
+  padding: 3px 9px;
+  border-radius: 20px;
+  border: 1px solid #3a1e1e;
+  background: rgba(248,113,113,0.07);
+  color: var(--danger);
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: background 0.15s;
+}
+.btn-del-day:hover { background: rgba(248,113,113,0.18); }
+
+/* ── BLOCKS ── */
+.blocks {
+  padding: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.block {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.6rem;
+  border-radius: 7px;
+  font-size: 0.7rem;
+  line-height: 1.3;
+  position: relative;
+  cursor: pointer;
+}
+
+.block:hover .block-overlay { opacity: 1; }
+
+.block-dsa     { background: rgba(240,192,64,0.08);  border-left: 3px solid var(--dsa); }
+.block-mern    { background: rgba(79,195,247,0.08);  border-left: 3px solid var(--mern); }
+.block-college { background: rgba(168,213,162,0.08); border-left: 3px solid var(--college); }
+.block-rest    { background: rgba(158,158,158,0.06); border-left: 3px solid var(--rest); }
+.block-other   { background: rgba(192,132,252,0.07); border-left: 3px solid var(--other); }
+
+.block-time {
+  color: var(--dim);
+  white-space: nowrap;
+  min-width: 78px;
+  font-size: 0.65rem;
+}
+
+.block-label { color: var(--text); flex: 1; }
+
+.block-overlay {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.block-overlay button {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.6rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--border2);
+  background: var(--card);
+  color: var(--dim);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.block-overlay button:hover { color: var(--text); border-color: #444; }
+.block-overlay .blk-del:hover { color: var(--danger); border-color: #3a1e1e; }
+
+.empty-msg {
+  text-align: center;
+  font-size: 0.68rem;
+  color: var(--dim);
+  padding: 1rem 0;
+  letter-spacing: 1px;
+}
+
+/* ── FOOTER ── */
+.day-footer {
+  padding: 0.5rem 1rem 0.75rem;
+  font-size: 0.65rem;
+  color: var(--dim);
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.focus-input {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.65rem;
+  background: transparent;
+  border: none;
+  border-bottom: 1px dashed var(--border2);
+  color: var(--text);
+  font-weight: 700;
+  width: 65px;
+  text-align: right;
+  outline: none;
+  padding: 0 2px;
+}
+
+/* ── STATS ── */
+.stats {
+  max-width: 1100px;
+  margin: 1.2rem auto 0;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.stat-box {
+  flex: 1;
+  min-width: 130px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem;
+  text-align: center;
+}
+
+.stat-num {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 1.8rem;
+  display: block;
+}
+
+.stat-label {
+  font-size: 0.65rem;
+  color: var(--dim);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 3px;
+  display: block;
+}
+
+/* ── RULES ── */
+.rules {
+  max-width: 1100px;
+  margin: 1rem auto 0;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem 1.2rem;
+}
+
+.rules h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--dim);
+  margin-bottom: 0.7rem;
+}
+
+.rules-list { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+.rule-chip {
+  font-size: 0.68rem;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: #1a1a1a;
+  border: 1px solid var(--border2);
+  color: #ccc;
+}
+
+/* ── MODALS ── */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.72);
+  backdrop-filter: blur(4px);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+
+.modal {
+  background: var(--card);
+  border: 1px solid #2a2a2a;
+  border-radius: 14px;
+  padding: 1.5rem;
+  width: min(370px, 92vw);
+  animation: fadeUp 0.2s ease;
+}
+
+.modal h2 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 1.1rem;
+  letter-spacing: 1px;
+  margin-bottom: 1.1rem;
+}
+
+.modal-form { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.modal-form label {
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--dim);
+  display: block;
+  margin-bottom: 3px;
+}
+
+.modal-form input,
+.modal-form select {
+  width: 100%;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.72rem;
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  color: var(--text);
+  border-radius: 7px;
+  padding: 0.5rem 0.7rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.modal-form input:focus,
+.modal-form select:focus { border-color: #444; }
+
+.modal-btns { display: flex; gap: 0.5rem; margin-top: 0.25rem; }
+
+.modal-save {
+  flex: 1;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.5rem;
+  border: none;
+  border-radius: 7px;
+  background: var(--text);
+  color: #000;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: opacity 0.15s;
+}
+.modal-save:hover { opacity: 0.85; }
+
+.modal-cancel {
+  padding: 0.5rem 1rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.7rem;
+  border: 1px solid #2a2a2a;
+  background: transparent;
+  color: var(--dim);
+  border-radius: 7px;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.modal-cancel:hover { color: var(--text); }
+</style>
+</head>
+<body>
+
+<div class="top">
+  <h1>Weekly Timetable</h1>
+  <button class="add-day-btn" onclick="openAddDayModal()">+ Add Day</button>
+</div>
+<p class="subtitle">DSA (Java) + MERN · College Schedule · Click any block to edit</p>
+
+<div class="legend">
+  <div class="legend-item"><div class="dot" style="background:var(--dsa)"></div> DSA</div>
+  <div class="legend-item"><div class="dot" style="background:var(--mern)"></div> MERN</div>
+  <div class="legend-item"><div class="dot" style="background:var(--college)"></div> College</div>
+  <div class="legend-item"><div class="dot" style="background:var(--rest)"></div> Rest / Review</div>
+  <div class="legend-item"><div class="dot" style="background:var(--other)"></div> Other</div>
+</div>
+
+<div class="grid" id="grid"></div>
+<div class="stats" id="stats"></div>
+
+<div class="rules">
+  <h2>Rules</h2>
+  <div class="rules-list">
+    <span class="rule-chip">📵 Phone away during sessions</span>
+    <span class="rule-chip">🚫 No roadmap YouTube</span>
+    <span class="rule-chip">🚫 No switching to Python</span>
+    <span class="rule-chip">😴 Sleep by 11 PM</span>
+    <span class="rule-chip">✅ One failed session ≠ cancel the day</span>
+  </div>
+</div>
+
+<!-- BLOCK MODAL -->
+<div class="modal-overlay" id="blockModal">
+  <div class="modal">
+    <h2 id="modalTitle">Add Task</h2>
+    <div class="modal-form">
+      <div>
+        <label>Time (e.g. 6:30–7:30 AM)</label>
+        <input type="text" id="m-time" placeholder="6:30–7:30 AM" />
+      </div>
+      <div>
+        <label>Task Name</label>
+        <input type="text" id="m-label" placeholder="DSA Deep Practice" />
+      </div>
+      <div>
+        <label>Type</label>
+        <select id="m-type">
+          <option value="dsa">DSA</option>
+          <option value="mern">MERN</option>
+          <option value="college">College</option>
+          <option value="rest">Rest / Review</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="modal-btns">
+        <button class="modal-save" onclick="saveBlockModal()">Save</button>
+        <button class="modal-cancel" onclick="closeModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD DAY MODAL -->
+<div class="modal-overlay" id="dayModal">
+  <div class="modal">
+    <h2>Add Day</h2>
+    <div class="modal-form">
+      <div>
+        <label>Day Name</label>
+        <input type="text" id="d-name" placeholder="Monday" />
+      </div>
+      <div>
+        <label>Type</label>
+        <select id="d-tag">
+          <option value="full">Full Day</option>
+          <option value="half">Half Day</option>
+          <option value="free">Free / Growth</option>
+          <option value="recovery">Recovery</option>
+          <option value="custom">Custom</option>
+        </select>
+      </div>
+      <div>
+        <label>Focus Hours (e.g. ~4.5 hrs)</label>
+        <input type="text" id="d-focus" placeholder="~4.5 hrs" />
+      </div>
+      <div class="modal-btns">
+        <button class="modal-save" onclick="saveNewDay()">Add Day</button>
+        <button class="modal-cancel" onclick="closeDayModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let days = [
+  { id:1, name:"Monday",    tag:"full",     focus:"~4.5 hrs",
+    blocks:[
+      {id:1, time:"6:30–7:15 AM",  label:"DSA Revision",       type:"dsa"},
+      {id:2, time:"9:00–4:00 PM",  label:"College",            type:"college"},
+      {id:3, time:"5:30–7:30 PM",  label:"DSA Deep Practice",  type:"dsa"},
+      {id:4, time:"8:30–10:30 PM", label:"MERN + Small Build", type:"mern"},
+    ]},
+  { id:2, name:"Tuesday",   tag:"full",     focus:"~4.5 hrs",
+    blocks:[
+      {id:1, time:"6:30–7:30 AM",  label:"DSA Problems", type:"dsa"},
+      {id:2, time:"9:00–4:00 PM",  label:"College",      type:"college"},
+      {id:3, time:"5:30–7:30 PM",  label:"MERN Build",   type:"mern"},
+      {id:4, time:"8:30–10:00 PM", label:"DSA Practice", type:"dsa"},
+    ]},
+  { id:3, name:"Wednesday", tag:"half",     focus:"~6 hrs",
+    blocks:[
+      {id:1, time:"6:30–7:30 AM",  label:"DSA",              type:"dsa"},
+      {id:2, time:"9:00–1:00 PM",  label:"College",          type:"college"},
+      {id:3, time:"2:00–4:00 PM",  label:"DSA Deep Work",    type:"dsa"},
+      {id:4, time:"5:00–7:00 PM",  label:"MERN Project Dev", type:"mern"},
+      {id:5, time:"9:00–10:00 PM", label:"Debug / Review",   type:"rest"},
+    ]},
+  { id:4, name:"Thursday",  tag:"half",     focus:"~6 hrs",
+    blocks:[
+      {id:1, time:"6:30–7:30 AM",  label:"MERN Concept",       type:"mern"},
+      {id:2, time:"9:00–1:00 PM",  label:"College",            type:"college"},
+      {id:3, time:"2:00–4:00 PM",  label:"DSA Hard Problems",  type:"dsa"},
+      {id:4, time:"5:00–7:00 PM",  label:"MERN Feature Build", type:"mern"},
+      {id:5, time:"9:00–10:00 PM", label:"Revision",           type:"rest"},
+    ]},
+  { id:5, name:"Friday",    tag:"half",     focus:"~6 hrs",
+    blocks:[
+      {id:1, time:"6:30–7:30 AM",  label:"DSA",                type:"dsa"},
+      {id:2, time:"9:00–1:00 PM",  label:"College",            type:"college"},
+      {id:3, time:"2:00–5:00 PM",  label:"DSA Mock / Timed",   type:"dsa"},
+      {id:4, time:"6:00–8:00 PM",  label:"MERN Project Build", type:"mern"},
+      {id:5, time:"9:30–10:00 PM", label:"Light Review",       type:"rest"},
+    ]},
+  { id:6, name:"Saturday",  tag:"free",     focus:"~6 hrs",
+    blocks:[
+      {id:1, time:"7:00–10:00 AM", label:"DSA Contest / 4–5 Problems", type:"dsa"},
+      {id:2, time:"10:00 AM–4 PM", label:"Break",                      type:"rest"},
+      {id:3, time:"4:00–7:00 PM",  label:"MERN Major Feature",         type:"mern"},
+      {id:4, time:"Night",         label:"Light Review",               type:"rest"},
+    ]},
+  { id:7, name:"Sunday",    tag:"recovery", focus:"~2 hrs",
+    blocks:[
+      {id:1, time:"2:00–3:00 PM", label:"Review DSA Mistakes",   type:"dsa"},
+      {id:2, time:"3:00–4:00 PM", label:"Refactor MERN Code",    type:"mern"},
+      {id:3, time:"After 4 PM",   label:"Plan Next Week + Rest", type:"rest"},
+    ]},
+];
+
+let nextDayId = 8;
+let modalCtx  = null;
+
+function render() {
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+  days.forEach(day => grid.appendChild(buildCard(day)));
+  renderStats();
+}
+
+function buildCard(day) {
+  const card = document.createElement('div');
+  card.className = 'day-card';
+
+  const header = document.createElement('div');
+  header.className = 'day-header';
+
+  const left = document.createElement('div');
+  left.className = 'day-left';
+
+  const nameEl = document.createElement('span');
+  nameEl.className = 'day-name';
+  nameEl.textContent = day.name;
+  nameEl.title = 'Click to rename';
+  nameEl.onclick = () => startEditName(day.id, nameEl);
+
+  const tagSel = document.createElement('select');
+  tagSel.className = 'day-tag-select';
+  [['full','Full Day'],['half','Half Day'],['free','Free/Growth'],['recovery','Recovery'],['custom','Custom']]
+    .forEach(([v,l]) => {
+      const o = document.createElement('option');
+      o.value = v; o.textContent = l;
+      if (day.tag === v) o.selected = true;
+      tagSel.appendChild(o);
+    });
+  tagSel.onchange = () => { day.tag = tagSel.value; };
+
+  left.appendChild(nameEl);
+  left.appendChild(tagSel);
+
+  const actions = document.createElement('div');
+  actions.className = 'day-actions';
+
+  const addTaskBtn = document.createElement('button');
+  addTaskBtn.className = 'btn-add-task';
+  addTaskBtn.textContent = '+ Task';
+  addTaskBtn.onclick = () => openBlockModal(day.id, null);
+
+  const delDayBtn = document.createElement('button');
+  delDayBtn.className = 'btn-del-day';
+  delDayBtn.textContent = '✕ Day';
+  delDayBtn.onclick = (e) => {
+    e.stopPropagation();
+    const d = days.find(x => x.id === day.id);
+    if (confirm('Delete "' + (d ? d.name : 'this day') + '"?')) {
+      days = days.filter(x => x.id !== day.id);
+      render();
+    }
+  };
+
+  actions.appendChild(addTaskBtn);
+  actions.appendChild(delDayBtn);
+  header.appendChild(left);
+  header.appendChild(actions);
+  card.appendChild(header);
+
+  const blocksEl = document.createElement('div');
+  blocksEl.className = 'blocks';
+
+  if (day.blocks.length === 0) {
+    const e = document.createElement('div');
+    e.className = 'empty-msg';
+    e.textContent = 'No tasks · click + Task to add';
+    blocksEl.appendChild(e);
+  } else {
+    day.blocks.forEach(b => blocksEl.appendChild(buildBlock(day.id, b)));
+  }
+  card.appendChild(blocksEl);
+
+  const footer = document.createElement('div');
+  footer.className = 'day-footer';
+
+  const lbl = document.createElement('span');
+  lbl.textContent = 'Focus';
+
+  const fi = document.createElement('input');
+  fi.className = 'focus-input';
+  fi.value = day.focus;
+  fi.title = 'Edit focus hours';
+  fi.onchange = () => { day.focus = fi.value; };
+
+  footer.appendChild(lbl);
+  footer.appendChild(fi);
+  card.appendChild(footer);
+  return card;
+}
+
+function buildBlock(dayId, block) {
+  const el = document.createElement('div');
+  el.className = 'block block-' + block.type;
+  el.onclick = () => openBlockModal(dayId, block.id);
+
+  const timeEl = document.createElement('span');
+  timeEl.className = 'block-time';
+  timeEl.textContent = block.time;
+
+  const labelEl = document.createElement('span');
+  labelEl.className = 'block-label';
+  labelEl.textContent = block.label;
+
+  const overlay = document.createElement('div');
+  overlay.className = 'block-overlay';
+
+  const editBtn = document.createElement('button');
+  editBtn.textContent = 'edit';
+  editBtn.onclick = (e) => { e.stopPropagation(); openBlockModal(dayId, block.id); };
+
+  const delBtn = document.createElement('button');
+  delBtn.className = 'blk-del';
+  delBtn.textContent = 'del';
+  delBtn.onclick = (e) => { e.stopPropagation(); deleteBlock(dayId, block.id); };
+
+  overlay.appendChild(editBtn);
+  overlay.appendChild(delBtn);
+  el.appendChild(timeEl);
+  el.appendChild(labelEl);
+  el.appendChild(overlay);
+  return el;
+}
+
+function openBlockModal(dayId, blockId) {
+  modalCtx = { dayId, blockId };
+  const day = days.find(d => d.id === dayId);
+  if (blockId !== null) {
+    const b = day.blocks.find(b => b.id === blockId);
+    document.getElementById('modalTitle').textContent = 'Edit Task';
+    document.getElementById('m-time').value  = b.time;
+    document.getElementById('m-label').value = b.label;
+    document.getElementById('m-type').value  = b.type;
+  } else {
+    document.getElementById('modalTitle').textContent = 'Add Task';
+    document.getElementById('m-time').value  = '';
+    document.getElementById('m-label').value = '';
+    document.getElementById('m-type').value  = 'dsa';
+  }
+  document.getElementById('blockModal').classList.add('open');
+  setTimeout(() => document.getElementById('m-time').focus(), 50);
+}
+
+function saveBlockModal() {
+  const time  = document.getElementById('m-time').value.trim();
+  const label = document.getElementById('m-label').value.trim();
+  const type  = document.getElementById('m-type').value;
+  if (!label) { document.getElementById('m-label').focus(); return; }
+  const { dayId, blockId } = modalCtx;
+  const day = days.find(d => d.id === dayId);
+  if (blockId !== null) {
+    const b = day.blocks.find(b => b.id === blockId);
+    b.time = time; b.label = label; b.type = type;
+  } else {
+    const newId = day.blocks.length ? Math.max(...day.blocks.map(b => b.id)) + 1 : 1;
+    day.blocks.push({ id: newId, time, label, type });
+  }
+  closeModal(); render();
+}
+
+function closeModal() {
+  document.getElementById('blockModal').classList.remove('open');
+  modalCtx = null;
+}
+
+function deleteBlock(dayId, blockId) {
+  const day = days.find(d => d.id === dayId);
+  day.blocks = day.blocks.filter(b => b.id !== blockId);
+  render();
+}
+
+function startEditName(dayId, nameEl) {
+  const day = days.find(d => d.id === dayId);
+  const input = document.createElement('input');
+  input.className = 'day-name-input';
+  input.value = day.name;
+  nameEl.replaceWith(input);
+  input.focus(); input.select();
+  const done = () => {
+    const val = input.value.trim() || day.name;
+    day.name = val;
+    const span = document.createElement('span');
+    span.className = 'day-name';
+    span.textContent = val;
+    span.title = 'Click to rename';
+    span.onclick = () => startEditName(dayId, span);
+    input.replaceWith(span);
+  };
+  input.onblur = done;
+  input.onkeydown = (e) => {
+    if (e.key === 'Enter') done();
+    if (e.key === 'Escape') { input.value = day.name; done(); }
+  };
+}
+
+function openAddDayModal() {
+  document.getElementById('d-name').value  = '';
+  document.getElementById('d-tag').value   = 'full';
+  document.getElementById('d-focus').value = '';
+  document.getElementById('dayModal').classList.add('open');
+  setTimeout(() => document.getElementById('d-name').focus(), 50);
+}
+
+function saveNewDay() {
+  const name  = document.getElementById('d-name').value.trim();
+  if (!name) { document.getElementById('d-name').focus(); return; }
+  const tag   = document.getElementById('d-tag').value;
+  const focus = document.getElementById('d-focus').value.trim() || '—';
+  days.push({ id: nextDayId++, name, tag, focus, blocks: [] });
+  closeDayModal(); render();
+}
+
+function closeDayModal() {
+  document.getElementById('dayModal').classList.remove('open');
+}
+
+function renderStats() {
+  const dsa   = days.reduce((s,d) => s + d.blocks.filter(b => b.type==='dsa').length, 0);
+  const mern  = days.reduce((s,d) => s + d.blocks.filter(b => b.type==='mern').length, 0);
+  const total = days.reduce((s,d) => s + d.blocks.length, 0);
+  document.getElementById('stats').innerHTML = `
+    <div class="stat-box"><span class="stat-num" style="color:var(--dsa)">${dsa}</span><span class="stat-label">DSA Blocks</span></div>
+    <div class="stat-box"><span class="stat-num" style="color:var(--mern)">${mern}</span><span class="stat-label">MERN Blocks</span></div>
+    <div class="stat-box"><span class="stat-num" style="color:var(--text)">${days.length}</span><span class="stat-label">Days</span></div>
+    <div class="stat-box"><span class="stat-num" style="color:var(--other)">${total}</span><span class="stat-label">Total Tasks</span></div>
+  `;
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeModal(); closeDayModal(); }
+  if (e.key === 'Enter' && document.getElementById('blockModal').classList.contains('open')) saveBlockModal();
+  if (e.key === 'Enter' && document.getElementById('dayModal').classList.contains('open'))  saveNewDay();
+});
+document.getElementById('blockModal').addEventListener('click', e => { if (e.target.id==='blockModal') closeModal(); });
+document.getElementById('dayModal').addEventListener('click',   e => { if (e.target.id==='dayModal')   closeDayModal(); });
+
+render();
+</script>
+</body>
+</html>
